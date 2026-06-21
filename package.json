@@ -1,0 +1,19 @@
+{
+  "name": "flowforge",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "db:up": "docker compose -f docker-compose.dev.yml up -d postgres",
+    "db:down": "docker compose -f docker-compose.dev.yml down",
+    "db:logs": "docker compose -f docker-compose.dev.yml logs -f postgres",
+    "db:migrate": "bun run --cwd apps/api prisma:deploy",
+    "db:seed": "bun run --cwd apps/api seed",
+    "dev:api": "bun run --cwd apps/api dev",
+    "dev:web": "bun run --cwd apps/web dev",
+    "test": "bun test",
+    "typecheck": "bun run --cwd apps/api typecheck && bun run --cwd apps/web typecheck"
+  }
+}

@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PM
+  INTERNAL
+  CLIENT
+}
+
+enum TaskStatus {
+  TODO
+  BLOCKED
+  IN_PROGRESS
+  REVIEW
+  DONE
+  CANCELLED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  STATUS_CHANGE
+  DEPENDENCY_ADD
+  DEPENDENCY_REMOVE
+  ATTACHMENT_ADD
+  ATTACHMENT_DELETE
+  SOFT_DELETE
+  RESTORE
+}
+
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  name          String
+  passwordHash  String
+  role          UserRole
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+  memberships   ProjectMember[]
+  assignedTasks Task[]          @relation("TaskAssignee")
+  auditLogs     AuditLog[]
+
+  @@index([deletedAt])
+}
+
+model Project {
+  id          String                @id @default(cuid())
+  name        String
+  description String?
+  clientName  String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  deletedAt   DateTime?
+  members     ProjectMember[]
+  tasks       Task[]
+  summaries   DailyStandupSummary[]
+
+  @@index([deletedAt])
+}
+
+model ProjectMember {
+  id        String    @id @default(cuid())
+  projectId String
+  userId    String
+  role      UserRole
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+  project   Project   @relation(fields: [projectId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@index([projectId])
+  @@index([deletedAt])
+}
+
+model Task {
+  id           String           @id @default(cuid())
+  projectId    String
+  assigneeId   String?
+  title        String
+  description  String
+  status       TaskStatus       @default(TODO)
+  priority     String?
+  dueDate      DateTime?
+  clientVisible Boolean         @default(false)
+  version      Int              @default(1)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?
+  project      Project          @relation(fields: [projectId], references: [id])
+  assignee     User?            @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  dependencies TaskDependency[] @relation("TaskDependencies")
+  dependents   TaskDependency[] @relation("TaskDependents")
+  attachments  Attachment[]
+  comments     Comment[]
+  auditLogs    AuditLog[]
+
+  @@index([projectId, status])
+  @@index([assigneeId])
+  @@index([deletedAt])
+}
+
+model TaskDependency {
+  id              String    @id @default(cuid())
+  taskId          String
+  dependsOnTaskId String
+  createdAt       DateTime  @default(now())
+  deletedAt       DateTime?
+  task            Task      @relation("TaskDependencies", fields: [taskId], references: [id])
+  dependsOnTask   Task      @relation("TaskDependents", fields: [dependsOnTaskId], references: [id])
+
+  @@unique([taskId, dependsOnTaskId])
+  @@index([dependsOnTaskId])
+  @@index([deletedAt])
+}
+
+model Attachment {
+  id         String    @id @default(cuid())
+  taskId     String
+  uploaderId String
+  fileName   String
+  fileUrl    String
+  mimeType   String
+  sizeBytes  Int
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
+  task       Task      @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+  @@index([deletedAt])
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  taskId    String
+  authorId  String
+  body      String
+  internal  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  task      Task      @relation(fields: [taskId], references: [id])
+
+  @@index([taskId])
+  @@index([deletedAt])
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  taskId      String
+  actorUserId String
+  action      AuditAction
+  field       String?
+  oldValue    Json?
+  newValue    Json?
+  createdAt   DateTime    @default(now())
+  task        Task        @relation(fields: [taskId], references: [id])
+  actor       User        @relation(fields: [actorUserId], references: [id])
+
+  @@index([taskId, createdAt])
+  @@index([actorUserId])
+}
+
+model DailyStandupSummary {
+  id              String    @id @default(cuid())
+  projectId       String
+  summaryDate     DateTime
+  completedCount  Int
+  inProgressCount Int
+  blockedCount    Int
+  summaryText     String
+  blockers        Json
+  generatedAt     DateTime  @default(now())
+  deletedAt       DateTime?
+  project         Project   @relation(fields: [projectId], references: [id])
+
+  @@unique([projectId, summaryDate])
+  @@index([deletedAt])
+}

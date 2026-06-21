@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: flowforge-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: flowforge_dev
+      POSTGRES_USER: flowforge
+      POSTGRES_PASSWORD: flowforge_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - flowforge_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowforge -d flowforge_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  flowforge_postgres_data:

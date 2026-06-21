@@ -1,0 +1,4 @@
+[test]
+preload = ["./apps/web/src/test/setup.ts"]
+maxConcurrency = 1
+isolate = true
