@@ -8,7 +8,7 @@ FlowForge adalah sistem delivery project berbasis permission, dependency task, o
 
 | Service | URL |
 | --- | --- |
-| Frontend | `TODO: paste deployed Vercel frontend URL` |
+| Frontend | `https://flowforge-web.vercel.app/` |
 | Backend API | `https://flowforge-api-ojtb.onrender.com` |
 | Backend Health Check | `https://flowforge-api-ojtb.onrender.com/health` |
 
@@ -42,18 +42,6 @@ FlowForge is currently delivered as a private monorepo:
 - **Concurrency:** task mutations use optimistic locking through the `version` field. Updates include the latest known version; stale writes return `409 TASK_VERSION_CONFLICT` with `currentVersion` and `currentTask` so the frontend can show a conflict dialog and reload latest data.
 - **Audit trail:** task create/update/status/dependency/attachment/delete/restore actions create `AuditLog` rows in the same transaction as the mutation. If audit creation fails, the task mutation fails too.
 - **Client data safety:** PM/Internal use internal DTOs. Client Guest uses a restricted DTO without assignee, internal email, audit, attachment, or internal-only dependency details.
-
-### Screenshots and Screen Recording
-
-Add final media links before submission:
-
-| Required Evidence | Link |
-| --- | --- |
-| Auth/login screen | `TODO: screenshot URL` |
-| PM task board with dependencies | `TODO: screenshot URL` |
-| Blocked task state | `TODO: screenshot URL` |
-| Client Guest read-only view | `TODO: screenshot URL` |
-| Screen recording under 3 minutes | `TODO: recording URL` |
 
 ## Local Setup With Docker PostgreSQL
 
