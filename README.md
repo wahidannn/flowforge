@@ -2,6 +2,59 @@
 
 FlowForge adalah sistem delivery project berbasis permission, dependency task, optimistic locking, soft delete, dan audit trail.
 
+## Reviewer Submission
+
+### Live Application URLs
+
+| Service | URL |
+| --- | --- |
+| Frontend | `TODO: paste deployed Vercel frontend URL` |
+| Backend API | `https://flowforge-api-ojtb.onrender.com` |
+| Backend Health Check | `https://flowforge-api-ojtb.onrender.com/health` |
+
+### Seeded Account Credentials
+
+Semua akun seed memakai password `password123`.
+
+| Role | Nama | Email | Password |
+| --- | --- | --- | --- |
+| PM | Project Manager | `pm@flowforge.test` | `password123` |
+| Internal Team | UI/UX Designer | `uiux@flowforge.test` | `password123` |
+| Internal Team | Frontend Engineer | `frontend@flowforge.test` | `password123` |
+| Internal Team | Backend Engineer | `backend@flowforge.test` | `password123` |
+| Client Guest | Client Guest | `client@flowforge.test` | `password123` |
+
+### GitHub Repositories
+
+FlowForge is currently delivered as a private monorepo:
+
+| Area | Repository |
+| --- | --- |
+| Backend API | `https://github.com/wahidannn/flowforge` (`apps/api`) |
+| Frontend Web | `https://github.com/wahidannn/flowforge` (`apps/web`) |
+
+### Architecture Overview
+
+- **Stack:** Bun + Hono API, Prisma + PostgreSQL/Supabase, JWT auth, Next.js frontend, TanStack Query, Zustand, React Hook Form, Zod, and Tailwind/shadcn-style components.
+- **RBAC + ABAC:** global user roles are `PM`, `INTERNAL`, and `CLIENT`; project access also requires `ProjectMember` membership. Backend services enforce role, membership, task assignment, and `clientVisible` rules before returning data or mutating state.
+- **State-based permissions:** PM can manage task metadata, dependencies, delete/restore, attachments, audit, and standup. Internal users only work on assigned tasks and cannot edit metadata/dependencies/delete. Client Guest is read-only and only receives client-safe DTO fields.
+- **Dependencies and blocked state:** task dependencies are stored in `TaskDependency`. The backend derives `isBlocked` and `blockedBy` from active dependencies, rejects starting blocked tasks, rejects self/cross-project/deleted/circular dependencies, and keeps the board dependency-aware.
+- **Concurrency:** task mutations use optimistic locking through the `version` field. Updates include the latest known version; stale writes return `409 TASK_VERSION_CONFLICT` with `currentVersion` and `currentTask` so the frontend can show a conflict dialog and reload latest data.
+- **Audit trail:** task create/update/status/dependency/attachment/delete/restore actions create `AuditLog` rows in the same transaction as the mutation. If audit creation fails, the task mutation fails too.
+- **Client data safety:** PM/Internal use internal DTOs. Client Guest uses a restricted DTO without assignee, internal email, audit, attachment, or internal-only dependency details.
+
+### Screenshots and Screen Recording
+
+Add final media links before submission:
+
+| Required Evidence | Link |
+| --- | --- |
+| Auth/login screen | `TODO: screenshot URL` |
+| PM task board with dependencies | `TODO: screenshot URL` |
+| Blocked task state | `TODO: screenshot URL` |
+| Client Guest read-only view | `TODO: screenshot URL` |
+| Screen recording under 3 minutes | `TODO: recording URL` |
+
 ## Local Setup With Docker PostgreSQL
 
 1. Install dependency:
