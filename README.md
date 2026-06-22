@@ -74,11 +74,13 @@ Untuk staging atau production, ganti `DATABASE_URL` dengan Supabase PostgreSQL c
 
 Semua akun seed memakai password `password123`.
 
-- `pm@flowforge.test`
-- `uiux@flowforge.test`
-- `frontend@flowforge.test`
-- `backend@flowforge.test`
-- `client@flowforge.test`
+| Role | Nama | Email | Password |
+| --- | --- | --- | --- |
+| PM | Project Manager | `pm@flowforge.test` | `password123` |
+| INTERNAL | UI/UX Designer | `uiux@flowforge.test` | `password123` |
+| INTERNAL | Frontend Engineer | `frontend@flowforge.test` | `password123` |
+| INTERNAL | Backend Engineer | `backend@flowforge.test` | `password123` |
+| CLIENT | Client Guest | `client@flowforge.test` | `password123` |
 
 ## Deployment
 
