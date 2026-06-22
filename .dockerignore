@@ -1,0 +1,17 @@
+node_modules
+**/node_modules
+.next
+**/.next
+.turbo
+dist
+coverage
+.git
+.agents
+.codex
+*.log
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+api-dev.err.log
+api-dev.log

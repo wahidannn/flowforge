@@ -44,6 +44,12 @@ bun run dev:web
 http://localhost:3001/health
 ```
 
+Jika Next.js memakai port selain `3000`, tambahkan origin tersebut ke `FRONTEND_URL` di `apps/api/.env` dengan format comma-separated, misalnya:
+
+```txt
+FRONTEND_URL="http://localhost:3000,http://localhost:3002"
+```
+
 ## Database Development Commands
 
 ```bash
@@ -79,3 +85,42 @@ Semua akun seed memakai password `password123`.
 - Database: Supabase PostgreSQL.
 - Backend: Render Web Service memakai `apps/api/Dockerfile`.
 - Frontend: Vercel atau Railway dengan `NEXT_PUBLIC_API_URL` mengarah ke backend Render.
+
+### Production Environment
+
+Backend wajib memiliki:
+
+```txt
+DATABASE_URL=
+JWT_SECRET=
+JWT_EXPIRES_IN=1d
+APP_ENV=production
+FRONTEND_URL=https://your-frontend-domain.example.com
+PORT=3001
+```
+
+`FRONTEND_URL` boleh berisi beberapa origin dipisahkan koma untuk staging dan production.
+
+Frontend wajib memiliki:
+
+```txt
+NEXT_PUBLIC_API_URL=https://your-backend-domain.example.com/api
+```
+
+Sebelum traffic production diarahkan ke backend, jalankan migration ke database production:
+
+```bash
+bun run --cwd apps/api prisma:deploy
+```
+
+Seed demo data hanya dijalankan di environment demo/staging yang memang membutuhkan akun contoh:
+
+```bash
+bun run --cwd apps/api seed
+```
+
+Health check backend:
+
+```txt
+https://your-backend-domain.example.com/health
+```

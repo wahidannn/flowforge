@@ -9,13 +9,20 @@ import { standupRoutes } from "./modules/standup/routes";
 
 export const app = new Hono();
 
+function allowedOrigins() {
+  return (process.env.FRONTEND_URL ?? "http://localhost:3000")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
 app.onError((error, c) => formatErrorResponse(error, c));
 
 app.use("*", errorMiddleware);
 app.use(
   "*",
   cors({
-    origin: process.env.FRONTEND_URL ?? "http://localhost:3000",
+    origin: allowedOrigins(),
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   }),
